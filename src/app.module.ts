@@ -1,9 +1,20 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
-  imports: [],
+  imports: [
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          name: 'default',
+          ttl: 60000,
+          limit: 100,
+        },
+      ],
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
