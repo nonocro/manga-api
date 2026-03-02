@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { StorageModule } from './storage/storage.module';
+import { MangasModule } from './mangas/mangas.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { StorageModule } from './storage/storage.module';
       ],
     }),
     StorageModule,
+    MangasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
