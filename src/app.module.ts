@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
         },
       ],
     }),
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
