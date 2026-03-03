@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { StorageService } from 'src/storage/storage.service';
 import { QueryMangaDto } from './dto/query-manga.dto';
 import { Manga } from './manga.interface';
+import { CreateMangaDto } from './dto/create-manga.dto';
+import { UpdateMangaDto } from './dto/update-manga.dto';
 
 @Injectable()
 export class MangasService {
@@ -56,5 +58,55 @@ export class MangasService {
           m.author.toLowerCase().includes(term) ||
           m.synopsis.toLowerCase().includes(term),
       );
+  }
+
+  create(dto: CreateMangaDto): Manga {
+    const mangas = this.storage.read<Manga[]>('mangas.json');
+
+    if (mangas.some((m) => m.title.toLowerCase() === dto.title.toLowerCase())) {
+      throw new NotFoundException(
+        `Manga with title "${dto.title}" already exists`,
+      );
+    }
+
+    const nextId = Math.max(...mangas.map((m) => m.id), 0) + 1;
+    const newManga: Manga = { id: nextId, ...dto };
+
+    this.storage.write('mangas.json', [...mangas, newManga]);
+    return newManga;
+  }
+
+  replace(id: number, dto: CreateMangaDto): Manga {
+    const mangas = this.storage.read<Manga[]>('mangas.json');
+    const index = mangas.findIndex((m) => m.id === id);
+    if (index === -1)
+      throw new NotFoundException(`Manga with id ${id} not found`);
+
+    const updated = { id, ...dto };
+    mangas[index] = updated;
+    this.storage.write('mangas.json', mangas);
+    return updated;
+  }
+
+  update(id: number, dto: UpdateMangaDto): Manga {
+    // PATCH : fusion partielle
+    const mangas = this.storage.read<Manga[]>('mangas.json');
+    const index = mangas.findIndex((m) => m.id === id);
+    if (index === -1)
+      throw new NotFoundException(`Manga with id ${id} not found`);
+
+    const updated = { ...mangas[index], ...dto }; // spread : seuls les champs fournis sont modifiés
+    mangas[index] = updated;
+    this.storage.write('mangas.json', mangas);
+    return updated;
+  }
+
+  remove(id: number): void {
+    const mangas = this.storage.read<Manga[]>('mangas.json');
+    const index = mangas.findIndex((m) => m.id === id);
+    if (index === -1)
+      throw new NotFoundException(`Manga with id ${id} not found`);
+    mangas.splice(index, 1);
+    this.storage.write('mangas.json', mangas);
   }
 }
