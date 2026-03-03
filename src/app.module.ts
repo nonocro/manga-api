@@ -7,6 +7,7 @@ import { MangasModule } from './mangas/mangas.module';
 import { AuthModule } from './auth/auth.module';
 import { ApiKeyGuard } from './common/guards/api-key.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { AdminGuard } from './common/guards/admin.guard';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { APP_GUARD } from '@nestjs/core';
     AppService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: ApiKeyGuard },
+    { provide: APP_GUARD, useClass: AdminGuard },
   ],
 })
 export class AppModule {}
