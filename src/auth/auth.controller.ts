@@ -10,7 +10,7 @@ import {
 import { AuthService } from './auth.service';
 import type { Request } from 'express';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { Public } from 'src/common/guards/decorators/public-decorators';
+import { Public } from '../common/guards/decorators/public-decorators';
 
 @Controller('auth')
 export class AuthController {

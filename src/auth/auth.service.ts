@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { StorageService } from 'src/storage/storage.service';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
+import { StorageService } from '../storage/storage.service';
 import { User } from './user.interface';
 
 @Injectable()
@@ -15,10 +15,10 @@ export class AuthService {
     }
 
     const newUser: User = {
-      id: uuidv4(),
+      id: randomUUID(),
       email,
       role: 'user',
-      apiKey: uuidv4(),
+      apiKey: randomUUID(),
       createAt: new Date().toISOString(),
     };
 
@@ -34,7 +34,7 @@ export class AuthService {
       throw new ConflictException(`API key ${apiKey} not found`);
     }
 
-    const newKey = uuidv4();
+    const newKey = randomUUID();
     users[index] = { ...users[index], apiKey: newKey };
     this.storage.write('users.json', users);
     return { apiKey: newKey };

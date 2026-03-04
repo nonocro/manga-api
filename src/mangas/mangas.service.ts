@@ -1,5 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { StorageService } from 'src/storage/storage.service';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
+import { StorageService } from '../storage/storage.service';
 import { QueryMangaDto } from './dto/query-manga.dto';
 import { Manga } from './manga.interface';
 import { CreateMangaDto } from './dto/create-manga.dto';
@@ -60,11 +64,16 @@ export class MangasService {
       );
   }
 
+  exists(id: number): boolean {
+    const mangas = this.storage.read<Manga[]>('mangas.json');
+    return mangas.some((m) => m.id === id);
+  }
+
   create(dto: CreateMangaDto): Manga {
     const mangas = this.storage.read<Manga[]>('mangas.json');
 
     if (mangas.some((m) => m.title.toLowerCase() === dto.title.toLowerCase())) {
-      throw new NotFoundException(
+      throw new ConflictException(
         `Manga with title "${dto.title}" already exists`,
       );
     }
@@ -82,6 +91,17 @@ export class MangasService {
     if (index === -1)
       throw new NotFoundException(`Manga with id ${id} not found`);
 
+    // Check for title conflicts (but allow same title for the item being replaced)
+    if (
+      mangas.some(
+        (m) => m.id !== id && m.title.toLowerCase() === dto.title.toLowerCase(),
+      )
+    ) {
+      throw new ConflictException(
+        `Manga with title "${dto.title}" already exists`,
+      );
+    }
+
     const updated = { id, ...dto };
     mangas[index] = updated;
     this.storage.write('mangas.json', mangas);
@@ -94,6 +114,18 @@ export class MangasService {
     const index = mangas.findIndex((m) => m.id === id);
     if (index === -1)
       throw new NotFoundException(`Manga with id ${id} not found`);
+
+    // Check for title conflicts if title is being updated (but allow same title for the item being updated)
+    if (
+      dto.title &&
+      mangas.some(
+        (m) => m.id !== id && m.title.toLowerCase() === dto.title.toLowerCase(),
+      )
+    ) {
+      throw new ConflictException(
+        `Manga with title "${dto.title}" already exists`,
+      );
+    }
 
     const updated = { ...mangas[index], ...dto }; // spread : seuls les champs fournis sont modifiés
     mangas[index] = updated;

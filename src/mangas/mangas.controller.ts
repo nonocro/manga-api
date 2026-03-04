@@ -19,7 +19,7 @@ import { QueryMangaDto } from './dto/query-manga.dto';
 import type { Response } from 'express';
 import { CreateMangaDto } from './dto/create-manga.dto';
 import { UpdateMangaDto } from './dto/update-manga.dto';
-import { AdminOnly } from 'src/common/guards/decorators/admin.decorators';
+import { AdminOnly } from '../common/guards/decorators/admin.decorators';
 import {
   ApiBody,
   ApiOperation,
